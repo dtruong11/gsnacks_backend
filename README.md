@@ -1,6 +1,6 @@
-#gsnacks_Galvanize
+# gsnacks_Galvanize
 
-This is a recreation of Galvanize's gsnack backend from node, express to Go. 
+*This is a recreation of Galvanize's gsnack backend from node, express to Go.*
 
 # galvanize-snacks-api
 
