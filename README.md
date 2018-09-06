@@ -67,3 +67,10 @@
 **DELETE /api/snacks/:id**
 
 **DELETE /api/snacks/:id/reviews/:id**
+
+### Installation 
+1. Fork/ clone this repository 
+2. open psql, createdb snacks_dev
+3. go build 
+4. go run main.go
+5. Use postman to test routes 
