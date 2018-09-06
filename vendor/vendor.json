@@ -1,0 +1,121 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "5zwPG1GRjXyoTkpIILXL0Jz58GM=",
+			"path": "github.com/aiden0z/go-jwt-middleware",
+			"revision": "14a0de5f054df8738f9354a29b542d96dfacdc88",
+			"revisionTime": "2016-09-13T02:38:35Z"
+		},
+		{
+			"checksumSHA1": "CV693OGZClwJGDcyxv/VZFi2WTE=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": "0b96aaa707760d6ab28d9b9d1913ff5993328bae",
+			"revisionTime": "2018-07-19T21:18:23Z"
+		},
+		{
+			"checksumSHA1": "IkPM2QLv9urri7S49wzroQx9oXA=",
+			"path": "github.com/gorilla/context",
+			"revision": "08b5f424b9271eedf6f9f0ce86cb9396ed337a42",
+			"revisionTime": "2016-08-17T18:46:32Z"
+		},
+		{
+			"checksumSHA1": "hRAC1SPR09zWfLwq57fKKRHHtN4=",
+			"path": "github.com/gorilla/handlers",
+			"revision": "7e0847f9db758cdebd26c149d0ae9d5d0b9c98ce",
+			"revisionTime": "2018-07-27T23:06:46Z"
+		},
+		{
+			"checksumSHA1": "VIqZT/5XS+CM3N6O1pR7eez7tsY=",
+			"path": "github.com/gorilla/mux",
+			"revision": "962c5bed0721b50f2ba42684e9600dfde174770f",
+			"revisionTime": "2018-08-30T14:23:24Z"
+		},
+		{
+			"checksumSHA1": "0g11LO4t2WdJ4yVewSKH1A7vXQ4=",
+			"path": "github.com/jinzhu/gorm",
+			"revision": "32455088f24d6b1e9a502fb8e40fdc16139dbea8",
+			"revisionTime": "2018-08-18T23:14:33Z"
+		},
+		{
+			"checksumSHA1": "BC1nFxDYDUMYojKqxwSaWqy+b+A=",
+			"path": "github.com/jinzhu/gorm/dialects/postgres",
+			"revision": "32455088f24d6b1e9a502fb8e40fdc16139dbea8",
+			"revisionTime": "2018-08-18T23:14:33Z"
+		},
+		{
+			"checksumSHA1": "YBNroGKEItNe0bENTEKbx71DyGQ=",
+			"path": "github.com/jinzhu/gorm/dialects/sqlite",
+			"revision": "32455088f24d6b1e9a502fb8e40fdc16139dbea8",
+			"revisionTime": "2018-08-18T23:14:33Z"
+		},
+		{
+			"checksumSHA1": "mfb/EusMwfajCPq0lwLWM/pvqI4=",
+			"path": "github.com/jinzhu/inflection",
+			"revision": "04140366298a54a039076d798123ffa108fff46c",
+			"revisionTime": "2018-03-08T03:36:59Z"
+		},
+		{
+			"checksumSHA1": "sMHgueQAaZXaq1ng1E7nNl2dDC4=",
+			"path": "github.com/joho/godotenv",
+			"revision": "1709ab122c988931ad53508747b3c061400c2984",
+			"revisionTime": "2018-04-05T05:36:34Z"
+		},
+		{
+			"checksumSHA1": "j+vBozuP9t1baDRdfEykQSP4AGw=",
+			"path": "github.com/lib/pq",
+			"revision": "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79",
+			"revisionTime": "2018-08-23T06:29:44Z"
+		},
+		{
+			"checksumSHA1": "wYhUtPI9cCxqkXtXUGeF7l1xaoU=",
+			"path": "github.com/lib/pq/hstore",
+			"revision": "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79",
+			"revisionTime": "2018-08-23T06:29:44Z"
+		},
+		{
+			"checksumSHA1": "GX2hcQP8YqrXH+laJJIxUFsqoxU=",
+			"path": "github.com/lib/pq/oid",
+			"revision": "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79",
+			"revisionTime": "2018-08-23T06:29:44Z"
+		},
+		{
+			"checksumSHA1": "wgV+OaVIH8IodzJ74AFpAZozVbg=",
+			"path": "github.com/mattn/go-sqlite3",
+			"revision": "3198c7714d5f8be941dd06c30208e623aa5abf90",
+			"revisionTime": "2018-08-24T14:21:20Z"
+		},
+		{
+			"checksumSHA1": "aJjZR7gm/kWFDnbhhbk0bo9uB2o=",
+			"path": "github.com/rs/cors",
+			"revision": "dc7332ab32be5dfec05dae2a6ab79cbfa53b6407",
+			"revisionTime": "2018-08-26T18:02:56Z"
+		},
+		{
+			"checksumSHA1": "xuIDxkpVhamjPOWtQjl6ijH6Liw=",
+			"path": "github.com/urfave/negroni",
+			"revision": "108b68bf276977f3bb02c1916d52084cf8e55f40",
+			"revisionTime": "2018-08-31T01:22:16Z"
+		},
+		{
+			"checksumSHA1": "oCH3J96RWvO8W4xjix47PModpio=",
+			"path": "golang.org/x/crypto/bcrypt",
+			"revision": "0709b304e793a5edb4a2c0145f281ecdc20838a4",
+			"revisionTime": "2018-08-31T22:38:59Z"
+		},
+		{
+			"checksumSHA1": "oVPHWesOmZ02vLq2fglGvf+AMgk=",
+			"path": "golang.org/x/crypto/blowfish",
+			"revision": "0709b304e793a5edb4a2c0145f281ecdc20838a4",
+			"revisionTime": "2018-08-31T22:38:59Z"
+		},
+		{
+			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
+			"path": "golang.org/x/net/context",
+			"revision": "8a410e7b638dca158bf9e766925842f6651ff828",
+			"revisionTime": "2018-08-25T16:15:26Z"
+		}
+	],
+	"rootPath": "github.com/oneArc_backend"
+}
