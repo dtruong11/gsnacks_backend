@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -13,15 +14,27 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-// Snack struct for db
-type Snack struct {
-	gorm.Model
-	Name        string
-	Description string
-	Price       uint
-	Img         string
-	Perishable  bool
-}
+type (
+	// Snack struct for db
+	Snack struct {
+		gorm.Model
+		Name        string
+		Description string
+		Price       uint
+		Img         string
+		Perishable  bool
+		Reviews     []Review
+	}
+
+	// Review struct for db
+	Review struct {
+		gorm.Model
+		Title   string
+		Text    string
+		Rating  int
+		SnackID uint64 `gorm:"index"` // Foreign key (belongs to), tag `index` will create index for this column
+	}
+)
 
 const (
 	host     = "localhost"
@@ -60,11 +73,29 @@ func main() {
 	db.Create(&s2)
 	db.Create(&s3)
 
+	db.AutoMigrate(&Review{})
+	re1 := Review{Title: "Incredible!", Text: "If it were a person I'd say to it: Is your name Dan Druff? You get into people's hair. I mean like, I'd say that you're funny but looks aren't everything.", Rating: 1, SnackID: 1}
+	re2 := Review{Title: "Tasty!", Text: "If it were a person I'd say to this snack: I appreciate all of your opinions. I mean like, You have ten of the best fingers I have ever seen!", Rating: 3, SnackID: 2}
+	re3 := Review{Title: "Tasty!", Text: "If it were a person I'd say to it: Learn from your parents' mistakes - use birth control! I mean like, I thought of you all day today. I was at the zoo.", Rating: 2, SnackID: 3}
+	re4 := Review{Title: "Refined!", Text: "If it were a person I'd say to this snack: I would share my dessert with you. I mean like, You are a champ!", Rating: 5, SnackID: 4}
+	db.Create(&re1)
+	db.Create(&re2)
+	db.Create(&re3)
+	db.Create(&re4)
+
+	// Snacks Routes
 	router.HandleFunc("/snacks", GetSnacks).Methods("GET")
 	router.HandleFunc("/snacks/{id}", GetSnack).Methods("GET")
 	router.HandleFunc("/snacks", CreateSnack).Methods("POST")
 	router.HandleFunc("/snacks/{id}", UpdateSnack).Methods("PUT")
 	router.HandleFunc("/snacks/{id}", DeleteSnack).Methods("DELETE")
+
+	// Reviews Routes
+	router.HandleFunc("/api/snacks/{id}/reviews", GetReviews).Methods("GET")
+	router.HandleFunc("/api/snacks/{id}/reviews", GetReview).Methods("GET")
+	router.HandleFunc("/api/snacks/{id}/reviews", CreateReview).Methods("POST")
+	router.HandleFunc("/api/snacks/{id}/reviews/{revId}", UpdateReview).Methods("PUT")
+	router.HandleFunc("/api/snacks/{id}/reviews/{revId}", DeleteReview).Methods("DELETE")
 
 	handler := cors.Default().Handler(router)
 
@@ -72,10 +103,25 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8000", handler))
 }
 
+//\/\/\ ERRORS /\/\/\
+
+// // ErrorBadRequest for bad request error
+// var ErrorBadRequest = errors.New("Bad request")
+// var ErrorNotAllowed = errors.New("Not allowed")
+// var ErrorInternalServer = errors.New("Internal Server Error")
+// var ErrorNotFound = errors.New("Not Found")
+// var ErrorExistingUser = errors.New("User already exists in the sytem")
+
+//\/\/\ CRUD SNACKS //\/\/\
+
 // GetSnacks function in main
 func GetSnacks(w http.ResponseWriter, r *http.Request) {
 	var snacks []Snack
 	db.Find(&snacks)
+	if err := db.Find(&snacks).Error; err != nil {
+		http.Error(w, err.Error(), 404)
+		return
+	}
 	json.NewEncoder(w).Encode(&snacks)
 }
 
@@ -100,16 +146,18 @@ func CreateSnack(w http.ResponseWriter, r *http.Request) {
 func UpdateSnack(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Updating snack yayyyy")
 	var snack Snack
-	json.NewDecoder(r.Body).Decode(&snack)
+	var snack2 Snack
+	json.NewDecoder(r.Body).Decode(&snack2)
+	fmt.Println("I am decoded snack", snack2)
 	params := mux.Vars(r)
 	db.Find(&snack, "id = ?", params["id"])
-	// db.Model(&snack).Updates(Snack{Name: snack.Name, Description: snack.Description, Price: snack.Price, Img: snack.Img, Perishable: snack.Perishable})
-	db.Model(&snack).Update("Name", snack.Name)
-	db.Model(&snack).Update("Description", snack.Description)
-	db.Model(&snack).Update("Price", snack.Price)
-	db.Model(&snack).Update("Img", snack.Img)
-	
-	fmt.Println("I am snack in UpdateSnack", snack)
+	db.Model(&snack).Updates(Snack{Name: snack2.Name, Description: snack2.Description, Price: snack2.Price, Img: snack2.Img, Perishable: snack2.Perishable})
+	// db.Model(&snack).Update("Name", snack2.Name)
+	// db.Model(&snack).Update("Description", snack2.Description)
+	// db.Model(&snack).Update("Price", snack2.Price)
+	// db.Model(&snack).Update("Img", snack2.Img)
+
+	fmt.Println("I am updated snack", snack)
 	json.NewEncoder(w).Encode(&snack)
 }
 
@@ -123,5 +171,59 @@ func DeleteSnack(w http.ResponseWriter, r *http.Request) {
 
 	var snacks []Snack
 	db.Find(&snacks)
+	json.NewEncoder(w).Encode(&deleted)
+}
+
+//\/\/\ CRUD REVIEWS //\/\/\
+
+// GetReviews func gets all reviews per snack
+func GetReviews(w http.ResponseWriter, r *http.Request) {
+	var reviews []Review
+	db.Find(&reviews)
+	json.NewEncoder(w).Encode(&reviews)
+}
+
+// GetReview func gets a single review per snack
+func GetReview(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var review Review
+	db.First(&review, params["id"])
+	json.NewEncoder(w).Encode(&review)
+}
+
+// CreateReview func creates a snack's review
+func CreateReview(w http.ResponseWriter, r *http.Request) {
+	var review Review
+	fmt.Println("This is r.Body", r.Body)
+	json.NewDecoder(r.Body).Decode(&review)
+	db.Create(&review)
+	json.NewEncoder(w).Encode(&review)
+}
+
+// UpdateReview func updates a snack's review
+func UpdateReview(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Updating snack yayyyy")
+	var review Review
+	var review2 Review
+	json.NewDecoder(r.Body).Decode(&review2)
+	fmt.Println("I am decoded snack", review2)
+	params := mux.Vars(r)
+	db.Find(&review, "id = ?", params["id"])
+	id := params["id"]
+	id2, _ := strconv.ParseUint(id, 10, 64)
+	db.Model(&review).Updates(Review{Title: review2.Title, Text: review2.Text, Rating: review2.Rating, SnackID: id2})
+
+	fmt.Println("I am updated review", review)
+	json.NewEncoder(w).Encode(&review)
+}
+
+// DeleteReview func deletes a snack's review
+func DeleteReview(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var review Review
+	deleted := db.First(&review, params["id"])
+	fmt.Println("This is deleted", deleted)
+	db.Delete(&review)
+
 	json.NewEncoder(w).Encode(&deleted)
 }
