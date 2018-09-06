@@ -1,8 +1,6 @@
-# gsnacks_Galvanize
+# gsnacks-api-Galvanize
 
 *This is a recreation of Galvanize's gsnack backend from node, express to Go.*
-
-# galvanize-snacks-api
 
 ## Database Structure
 
