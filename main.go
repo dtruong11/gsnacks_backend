@@ -64,6 +64,7 @@ func main() {
 	}
 
 	defer db.Close()
+	db.DropTableIfExists(&Snack{}, &Review{})
 
 	db.AutoMigrate(&Snack{})
 	s1 := Snack{Name: "Pork Rinds", Description: "Mauris lacinia sapien quis libero. Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla. Sed accumsan felis.", Price: 8, Img: "https://az808821.vo.msecnd.net/content/images/thumbs/0000398_salt-pepper-pork-rinds-2-oz_560.jpeg", Perishable: true}
@@ -75,13 +76,16 @@ func main() {
 
 	db.AutoMigrate(&Review{})
 	re1 := Review{Title: "Incredible!", Text: "If it were a person I'd say to it: Is your name Dan Druff? You get into people's hair. I mean like, I'd say that you're funny but looks aren't everything.", Rating: 1, SnackID: 1}
-	re2 := Review{Title: "Tasty!", Text: "If it were a person I'd say to this snack: I appreciate all of your opinions. I mean like, You have ten of the best fingers I have ever seen!", Rating: 3, SnackID: 2}
-	re3 := Review{Title: "Tasty!", Text: "If it were a person I'd say to it: Learn from your parents' mistakes - use birth control! I mean like, I thought of you all day today. I was at the zoo.", Rating: 2, SnackID: 3}
-	re4 := Review{Title: "Refined!", Text: "If it were a person I'd say to this snack: I would share my dessert with you. I mean like, You are a champ!", Rating: 5, SnackID: 4}
+	re2 := Review{Title: "Tasty!", Text: "If it were a person I'd say to this snack: I appreciate all of your opinions. I mean like, You have ten of the best fingers I have ever seen!", Rating: 3, SnackID: 1}
+	re3 := Review{Title: "Tasty!", Text: "If it were a person I'd say to it: Learn from your parents' mistakes - use birth control! I mean like, I thought of you all day today. I was at the zoo.", Rating: 2, SnackID: 2}
+	re4 := Review{Title: "Refined!", Text: "If it were a person I'd say to this snack: I would share my dessert with you. I mean like, You are a champ!", Rating: 5, SnackID: 3}
+	re5 := Review{Title: "Handmade!", Text: "If it were a person I'd say to this snack: Treat yourself to another compliment! I mean like, You smell nice.", Rating: 5, SnackID: 3}
+
 	db.Create(&re1)
 	db.Create(&re2)
 	db.Create(&re3)
 	db.Create(&re4)
+	db.Create(&re5)
 
 	// Snacks Routes
 	router.HandleFunc("/snacks", GetSnacks).Methods("GET")
@@ -92,7 +96,7 @@ func main() {
 
 	// Reviews Routes
 	router.HandleFunc("/api/snacks/{id}/reviews", GetReviews).Methods("GET")
-	router.HandleFunc("/api/snacks/{id}/reviews", GetReview).Methods("GET")
+	router.HandleFunc("/api/snacks/{id}/reviews/{revId}", GetReview).Methods("GET")
 	router.HandleFunc("/api/snacks/{id}/reviews", CreateReview).Methods("POST")
 	router.HandleFunc("/api/snacks/{id}/reviews/{revId}", UpdateReview).Methods("PUT")
 	router.HandleFunc("/api/snacks/{id}/reviews/{revId}", DeleteReview).Methods("DELETE")
@@ -110,31 +114,44 @@ func main() {
 // var ErrorNotAllowed = errors.New("Not allowed")
 // var ErrorInternalServer = errors.New("Internal Server Error")
 // var ErrorNotFound = errors.New("Not Found")
+
 // var ErrorExistingUser = errors.New("User already exists in the sytem")
 
 //\/\/\ CRUD SNACKS //\/\/\
 
 // GetSnacks function in main
 func GetSnacks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var snacks []Snack
 	db.Find(&snacks)
 	if err := db.Find(&snacks).Error; err != nil {
 		http.Error(w, err.Error(), 404)
 		return
 	}
+
 	json.NewEncoder(w).Encode(&snacks)
 }
 
 // GetSnack function in main
 func GetSnack(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	params := mux.Vars(r)
 	var snack Snack
 	db.First(&snack, params["id"])
+	if err := db.First(&snack).Error; err != nil {
+		http.Error(w, "Snack Not Found", 404)
+		return
+	}
+
 	json.NewEncoder(w).Encode(&snack)
 }
 
 // CreateSnack function in main
 func CreateSnack(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var snack Snack
 	fmt.Println("This is r.Body", r.Body)
 	json.NewDecoder(r.Body).Decode(&snack)
@@ -144,6 +161,8 @@ func CreateSnack(w http.ResponseWriter, r *http.Request) {
 
 // UpdateSnack function in main
 func UpdateSnack(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	fmt.Println("Updating snack yayyyy")
 	var snack Snack
 	var snack2 Snack
@@ -163,6 +182,8 @@ func UpdateSnack(w http.ResponseWriter, r *http.Request) {
 
 // DeleteSnack function in main
 func DeleteSnack(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	params := mux.Vars(r)
 	var snack Snack
 	deleted := db.First(&snack, params["id"])
@@ -178,30 +199,61 @@ func DeleteSnack(w http.ResponseWriter, r *http.Request) {
 
 // GetReviews func gets all reviews per snack
 func GetReviews(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var reviews []Review
-	db.Find(&reviews)
+	params := mux.Vars(r)
+
+	db.Find(&reviews, "snack_id = ?", params["id"])
+	if len(reviews) <= 0 {
+		http.Error(w, "Review not found for this snack", 404)
+		return
+	}
+
 	json.NewEncoder(w).Encode(&reviews)
 }
 
 // GetReview func gets a single review per snack
 func GetReview(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
+
+	// var reviews []Review
 	var review Review
-	db.First(&review, params["id"])
+	params := mux.Vars(r)
+
+	fmt.Println("this is db in getReview", db)
+	db.Where("snack_id = ? AND id = ?", params["id"], params["revId"]).First(&review)
+
+	if review.ID <= 0 {
+		fmt.Println("Error thrown in GetReview by checking ID = 0")
+		http.Error(w, "Review is not found for this snack", 404)
+		return
+	}
+
 	json.NewEncoder(w).Encode(&review)
 }
 
 // CreateReview func creates a snack's review
 func CreateReview(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var review Review
-	fmt.Println("This is r.Body", r.Body)
+	fmt.Printf("%T", r.Body)
+	params := mux.Vars(r)
+
+	// review.SnackID = params["id"]
 	json.NewDecoder(r.Body).Decode(&review)
+	id := params["id"]
+	id1, _ := strconv.ParseUint(id, 10, 64)
+	review.SnackID = id1
 	db.Create(&review)
 	json.NewEncoder(w).Encode(&review)
 }
 
 // UpdateReview func updates a snack's review
 func UpdateReview(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	fmt.Println("Updating snack yayyyy")
 	var review Review
 	var review2 Review
@@ -219,6 +271,8 @@ func UpdateReview(w http.ResponseWriter, r *http.Request) {
 
 // DeleteReview func deletes a snack's review
 func DeleteReview(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	params := mux.Vars(r)
 	var review Review
 	deleted := db.First(&review, params["id"])
